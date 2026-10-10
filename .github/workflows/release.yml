@@ -12,47 +12,28 @@ jobs:
       - uses: actions/setup-go@v2
       - uses: actions/checkout@v2
       - name: Set env
-        run: echo $("RELEASE_VERSION=" + "${{ github.ref }}".Substring(10)) >> $env:GITHUB_ENV
+        run: echo $("RELEASE_VERSION=" + "${{ github.ref_name }}".Substring(1)) >> $env:GITHUB_ENV
       - run: go get github.com/akavel/rsrc
       - name: Build project
         run: /bin/bash build.sh -v "${{ env.RELEASE_VERSION }}"
         shell: bash
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Create Release & Upload Assets
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: Release ${{ env.RELEASE_VERSION }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset (exe)
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/clipboard-online.exe
-          asset_name: clipboard-online.exe
-          asset_content_type: application/exe
-      - name: Upload Release Asset (app.ico)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app.ico
-          asset_name: app.ico
-          asset_content_type: image/x-icon
-      - name: Upload Release Asset (icon.png)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./icon.png
-          asset_name: icon.png
-          asset_content_type: image/png
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## clipboard-online ${{ github.ref_name }}
+
+            Windows / iOS 剪切板同步工具。
+
+            ### 包含文件
+            - `clipboard-online.exe`：主程序
+            - `app.ico`：程序图标
+            - `icon.png`：通知左侧图标
+          files: |
+            ./release/clipboard-online.exe
+            ./app.ico
+            ./icon.png
