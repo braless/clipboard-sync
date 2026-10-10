@@ -14,7 +14,7 @@ var REG_VALUE = os.Args[0]
 
 func NewAutoRunAction() (*walk.Action, error) {
 	action := walk.NewAction()
-	if err := action.SetText("开机启动"); err != nil {
+	if err := action.SetText("自启"); err != nil {
 		return nil, err
 	}
 
